@@ -24,6 +24,9 @@ function love.load()
   cake.img  = love.graphics.newImage('assets/cake.png')
   bulletImg = love.graphics.newImage('assets/coracao.png')
   jellyImg  = love.graphics.newImage('assets/jelly.png')
+  gunSound  = love.audio.newSource("assets/shoot.wav", "static")
+  coinSound = love.audio.newSource("assets/coin.wav", "static")
+  dieSound  = love.audio.newSource("assets/explosion.wav", "static")
 
   love.graphics.setNewFont(14)
 end
@@ -55,6 +58,8 @@ function love.update(dt)
     newBullet = { x = cake.x + (cake.img:getWidth()/2) - (bulletImg:getWidth()/2), y = cake.y, img = bulletImg }
     table.insert(bullets, newBullet)
 
+    gunSound:stop()
+    gunSound:play()
     canShoot = false
     canShootTimer = canShootTimerMax
   end
@@ -91,6 +96,7 @@ function love.update(dt)
         table.remove(bullets, b)
         table.remove(jellies, i)
 
+        coinSound:play()
         score = score + 1
       end
     end
@@ -99,6 +105,7 @@ function love.update(dt)
       and isAlive then
       table.remove(jellies, i)
 
+      dieSound:play()
       isAlive  = false
       canShoot = false
     end
