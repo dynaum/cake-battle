@@ -33,16 +33,16 @@ function love.update(dt)
     love.event.push('quit')
   end
 
-  if love.keyboard.isDown("up", "w") then
+  if love.keyboard.isDown("up", "w") and cake.y > 0 then
     cake.y = cake.y - cake.speed * dt
   end
-  if love.keyboard.isDown("down", "s") then
+  if love.keyboard.isDown("down", "s") and cake.y < (love.graphics.getHeight() - cake.img:getHeight()) then
     cake.y = cake.y + cake.speed * dt
   end
-  if love.keyboard.isDown("right", "d") then
+  if love.keyboard.isDown("right", "d") and cake.x < (love.graphics.getWidth() - cake.img:getWidth()) then
     cake.x = cake.x + cake.speed * dt
   end
-  if love.keyboard.isDown("left", "a") then
+  if love.keyboard.isDown("left", "a") and cake.x > 0 then
     cake.x = cake.x - cake.speed * dt
   end
 
