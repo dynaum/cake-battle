@@ -3,21 +3,34 @@ canShootTimerMax = 0.2
 canShootTimer = canShootTimerMax
 
 bulletImg = nil
-bullets = {}
+bullets   = {}
 
-cake = { x = 300, y = 400, speed = 200, img = nil }
+cake = { x = 368, y = 520, speed = 200, img = nil }
+
+createJellyTimerMax = 0.4
+createJellyTimer = createJellyTimerMax
+
+jellyImg = nil
+jellies  = {}
+
+isAlive = true
+score = 0
+
+function CheckCollision(x1,y1,w1,h1,x2,y2,w2,h2)
+  return x1 < x2+w2 and x2 < x1+w1 and y1 < y2+h2 and y2 < y1+h1
+end
 
 function love.load()
   cake.img  = love.graphics.newImage('assets/cake.png')
   bulletImg = love.graphics.newImage('assets/coracao.png')
+  jellyImg  = love.graphics.newImage('assets/jelly.png')
 
-  love.graphics.setNewFont(12)
-  love.graphics.setBackgroundColor(255,255,255)
+  love.graphics.setNewFont(14)
 end
 
 function love.update(dt)
   if love.keyboard.isDown('escape') then
-    love.event.push('eventquit')
+    love.event.push('quit')
   end
 
   if love.keyboard.isDown("up", "w") then
@@ -34,7 +47,7 @@ function love.update(dt)
   end
 
   canShootTimer = canShootTimer - (1 * dt)
-  if canShootTimer < 0 then
+  if canShootTimer < 0 and isAlive then
     canShoot = true
   end
 
@@ -53,13 +66,72 @@ function love.update(dt)
       table.remove(bullets, i)
     end
   end
+
+  createJellyTimer = createJellyTimer - (1 * dt)
+
+  if createJellyTimer < 0 then
+    createJellyTimer = createJellyTimerMax
+
+    randomNumber = math.random(10, love.graphics.getWidth() - 64)
+    newJelly = { x = randomNumber, y = -10, img = jellyImg }
+    table.insert(jellies, newJelly)
+  end
+
+  for i, jelly in ipairs(jellies) do
+    jelly.y = jelly.y + (150 * dt)
+
+    if jelly.y > 544 then
+      table.remove(jellies, i)
+    end
+  end
+
+  for i, jelly in ipairs(jellies) do
+    for b, bullet in ipairs(bullets) do
+      if CheckCollision(jelly.x, jelly.y, jelly.img:getWidth(), jelly.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
+        table.remove(bullets, b)
+        table.remove(jellies, i)
+
+        score = score + 1
+      end
+    end
+
+    if CheckCollision(jelly.x, jelly.y, jelly.img:getWidth(), jelly.img:getHeight(), cake.x, cake.y, cake.img:getWidth(), cake.img:getHeight()) 
+      and isAlive then
+      table.remove(jellies, i)
+
+      isAlive  = false
+      canShoot = false
+    end
+  end
+
+  if not isAlive and love.keyboard.isDown('r') then
+    bullets = {}
+    jellies = {}
+
+    canShootTimer = canShootTimerMax
+    createJellyTimer = createJellyTimerMax
+
+    cake.x = 368
+    cake.y = 520
+
+    score = 0
+    isAlive = true
+  end
 end
 
 function love.draw()
-  love.graphics.draw(cake.img, cake.x, cake.y)
+  if isAlive then
+    love.graphics.draw(cake.img, cake.x, cake.y)
+  else
+    love.graphics.print("Press 'R' to restart", love.graphics:getWidth() / 2 - 50, love.graphics:getHeight() / 2 - 10)
+  end
 
   for i, bullet in ipairs(bullets) do
     love.graphics.draw(bullet.img, bullet.x, bullet.y)
+  end
+
+  for i, jelly in ipairs(jellies) do
+    love.graphics.draw(jelly.img, jelly.x, jelly.y)
   end
 end
 
